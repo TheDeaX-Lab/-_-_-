@@ -341,6 +341,7 @@ procedure OnExitStudentFormEdit;
 begin
   if students[current_edit_student_index].auto_calculate = 1 then
     CalculateStipendiaForStudent(students[current_edit_student_index]);
+  SaveStudentsToFile(StudentsFileName);
   student_form.stopped := true;
   FullRender(students_form);
 end;
@@ -602,6 +603,8 @@ end;
 procedure OnApplyMarkFormDelete;
 begin
   DeleteMarkForStudent(students[current_edit_student_index], students[current_edit_student_index].marks[current_mark_edit_index]);
+  if students[current_edit_student_index].auto_calculate = 1 then
+    CalculateStipendiaForStudent(students[current_edit_student_index]);
   SaveStudentsToFile(StudentsFileName);
   with marks_form.tables[GetIndexByNameFromAssociationList(marks_form.lstcomponents, 'marks_table')] do
   begin
@@ -804,15 +807,15 @@ var
   i: integer;
   m_tmp: mark_rec;
 begin
+  m_tmp.discipline_id := disciplines[current_delete_discipline_index].id;
+  DeleteDiscipline(disciplines[current_delete_discipline_index]);
   for i := 0 to high(students) do
   begin
-    m_tmp.discipline_id := disciplines[current_delete_discipline_index].id;
     DeleteMarkForStudent(students[i], m_tmp);
     if students[i].auto_calculate = 1 then
       CalculateStipendiaForStudent(students[i]);
   end;
   SaveStudentsToFile(StudentsFileName);
-  DeleteDiscipline(disciplines[current_delete_discipline_index]);
   SaveDisciplinesToFile(DisciplinesFileName);
   current_delete_discipline_index := -1;
   with disciplines_form.tables[GetIndexByNameFromAssociationList(disciplines_form.lstcomponents, 'disciplines_table')] do

@@ -27,6 +27,21 @@ var
   f: text;
   deleted_indexes: array of integer;
 
+procedure ReadDeletedIndexes;
+var
+  n, i: integer;
+begin
+  Assign(f, DeletedIndexesDisciplinesFileName);
+  Reset(f);
+  readln(f, n);
+  SetLength(deleted_indexes, n);
+  for i := 0 to n - 1 do
+  begin
+    readln(f, deleted_indexes[i]);
+  end;
+  Close(f);
+end;
+
 procedure SaveDeletedIndexes;
 var
   n, i: integer;
@@ -66,11 +81,10 @@ var
 begin
   for i := 0 to high(deleted_indexes) do
   begin
-    if deleted_indexes[i] = index then begin
-      Swap(deleted_indexes[i], deleted_indexes[high(deleted_indexes)]);
+      deleted_indexes[i] := deleted_indexes[high(deleted_indexes)];
       setlength(deleted_indexes, high(deleted_indexes));
+      SaveDeletedIndexes();
       break;
-    end;
   end;
 end;
 
@@ -87,16 +101,13 @@ begin
   Result := -1;
   for i := 0 to high(deleted_indexes) do
   begin
-    if i = 0 then begin
-      Result := deleted_indexes[i];
-      DeleteDeletedIndexes(i);
-      SaveDeletedIndexes();
-      break;
-    end;
+    Result := deleted_indexes[i];
+    DeleteDeletedIndexes(i);
+    break;
   end;
   
   if Result = -1 then begin
-    NextDisciplineIndex := n;
+    Result := n;
   end;
 end;
 
@@ -194,4 +205,9 @@ begin
 end;
 
 begin
+  try
+    ReadDeletedIndexes;
+  except
+    setlength(deleted_indexes, 0);
+  end;
 end. 
