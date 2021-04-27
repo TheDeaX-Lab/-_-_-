@@ -9,13 +9,15 @@ type
   end;
 
 procedure FindAccountByLoginAndPassword(login, password: string; var is_found: boolean; var account: account_rec);
-function IsDuplicateAccount(account: account_rec; ignore_index : integer): boolean;
+function IsDuplicateAccount(account: account_rec; ignore_index: integer): boolean;
 procedure RemoveAccount(account: account_rec);
 procedure AddAccount(account: account_rec);
 procedure ReadAccountsFile(filename: string);
 procedure SaveAccountsFile(filename: string);
 function CreateAccount(lg, ps: string; adm: integer): account_rec;
 function GetAccountRow(i: integer): array of string;
+procedure SetDefaultAccounts();
+
 var
   accounts: array of account_rec;
 
@@ -39,7 +41,7 @@ end;
 
 function GetAccountRow(i: integer): array of string;
 var
-  tmp : array of string;
+  tmp: array of string;
 begin
   setlength(tmp, 3);
   tmp[0] := accounts[i].login;
@@ -48,22 +50,23 @@ begin
   Result := tmp;
 end;
 
-function IsDuplicateAccount(account: account_rec; ignore_index : integer): boolean;
+function IsDuplicateAccount(account: account_rec; ignore_index: integer): boolean;
 var
-  i : integer;
+  i: integer;
 begin
   IsDuplicateAccount := false;
-  for i := 0 to High(accounts) do begin
+  for i := 0 to High(accounts) do
+  begin
     if (ignore_index <> i) and (account.login = accounts[i].login) then begin
-     IsDuplicateAccount := true;
-     break;
+      IsDuplicateAccount := true;
+      break;
     end;
   end;
 end;
 
 procedure AddAccount;
 var
-  n : integer;
+  n: integer;
 begin
   try
     n := accounts.Length + 1;
@@ -74,11 +77,22 @@ begin
   accounts[n - 1] := account;
 end;
 
+procedure SetDefaultAccounts();
+var
+  tmp: account_rec;
+begin
+  tmp.login := 't';
+  tmp.password := 't';
+  tmp.admin := 1;
+  AddAccount(tmp);
+end;
+
 procedure RemoveAccount;
 var
-  i : integer;
+  i: integer;
 begin
-  for i := 0 to High(accounts) do begin
+  for i := 0 to High(accounts) do
+  begin
     if (account.login = accounts[i].login) and (account.password = accounts[i].password) then begin
       accounts[i] := accounts[High(accounts)];
       SetLength(accounts, High(accounts));

@@ -11,14 +11,19 @@ function CreateAccountsForm(): GuiComponents;
 function CreateAccountForm(): GuiComponents;
 function CreateApplyForm(): GuiComponents;
 function CreateStudentsForm(account: account_rec): GuiComponents;
-function CreateStudentForm(account: account_rec): GuiComponents;
+function CreateStudentForm(account: account_rec; is_add: boolean := false): GuiComponents;
+function CreateDisciplinesForm(): GuiComponents;
+function CreateDisciplineForm(): GuiComponents;
+function CreateBaseStipendiaForm(): GuiComponents;
+function CreateMarkForm(account: account_rec): GuiComponents;
+function CreateMarksForm(account: account_rec; is_denied_marks: boolean): GuiComponents;
 
 implementation
 
 function CreateAuthForm: GuiComponents;
 var
   tmp: GuiComponents;
-  i, bn, tn, tbn: integer;
+  i, bn, tn: integer;
 begin
   with tmp do
   begin
@@ -81,7 +86,7 @@ begin
       y := trunc(WindowHeight / 2) + 5;
       x := trunc(WindowWidth / 2) - 4;
       title := 'Выйти';
-      text_color := Red;
+      text_color := LightRed;
     end;
     with lstcomponents[i] do
     begin
@@ -113,7 +118,7 @@ begin
       y := trunc(WindowHeight / 2) - 3 * (nd - bn);
       title := 'Просмотр студентов';
       x := trunc(WindowWidth / 2) - trunc(title.Length / 2);
-      text_color := LightBlue;
+      text_color := Crt.LightCyan;
     end;
     with lstcomponents[i] do
     begin
@@ -148,7 +153,7 @@ begin
         y := trunc(WindowHeight / 2) - 3 * (nd - bn);
         title := 'Просмотр всех зарегистрированных дисциплин';
         x := trunc(WindowWidth / 2) - trunc(title.Length / 2);
-        text_color := Red;
+        text_color := LightRed;
       end;
       with lstcomponents[i] do
       begin
@@ -166,7 +171,7 @@ begin
         y := trunc(WindowHeight / 2) - 3 * (nd - bn);
         title := 'Изменить значение базовой стипендии';
         x := trunc(WindowWidth / 2) - trunc(title.Length / 2);
-        text_color := LightBlue;
+        text_color := LightRed;
       end;
       with lstcomponents[i] do
       begin
@@ -183,7 +188,7 @@ begin
       y := trunc(WindowHeight / 2) - 3 * (nd - bn);
       title := 'Выйти из сессии';
       x := trunc(WindowWidth / 2) - trunc(title.Length / 2);
-      text_color := Red;
+      text_color := LightRed;
     end;
     with lstcomponents[i] do
     begin
@@ -615,13 +620,14 @@ begin
   Result := tmp;
 end;
 
-function CreateStudentForm(account: account_rec): GuiComponents;
+function CreateStudentForm(account: account_rec; is_add: boolean): GuiComponents;
 var
   i, bn, tf, sl, n: integer;
   tmp: GuiComponents;
 begin
-  n := 2;
+  n := 1;
   if account.admin = 1 then inc(n);
+  if not is_add then inc(n);
   SetLength(tmp.selects, 1);
   setlength(tmp.buttons, n);
   setlength(tmp.text_fields, 4);
@@ -746,21 +752,371 @@ begin
     inc(i);
     inc(bn);
   end;
-  with tmp.buttons[bn] do
+  if not is_add then begin
+    with tmp.buttons[bn] do
+    begin
+      title := 'Перейти к таблице оценок';
+      x := (WindowWidth div 3 - title.Length - 2) div 2 + 2 * (WindowWidth div 3);
+      y := WindowHeight - 2;
+      text_color := LightBlue;
+    end;
+    with tmp.lstcomponents[i] do
+    begin
+      name := 'open_marks_table';
+      index := bn;
+      component_type := ComponentTypes.ButtonType;
+    end;
+    inc(i);
+    inc(bn);
+  end;
+  Result := tmp;
+end;
+
+function CreateDisciplinesForm(): GuiComponents;
+var
+  i, bn, tb, free_space: integer;
+  tmp: GuiComponents;
+begin
+  SetLength(tmp.tables, 1);
+  setlength(tmp.buttons, 2);
+  setlength(tmp.lstcomponents, 3);
+  tmp.window.title := 'Просмотр зарегистрированных дисциплин';
+  with tmp.tables[tb] do
   begin
-    title := 'Перейти к таблице оценок';
-    x := (WindowWidth div 3 - title.Length - 2) div 2 + 2 * (WindowWidth div 3);
-    y := WindowHeight - 2;
-    text_color := LightBlue;
+    setlength(columns, 1);
+    free_space := WindowWidth - 5 - 4;
+    columns[0] := CreateColumn('Название дисциплины', free_space, AlignCenter);
+    
+    height := WindowHeight - 3 - 3;
+    x := 3;
+    y := 3;
+    title := 'Дисциплины';
   end;
   with tmp.lstcomponents[i] do
   begin
-    name := 'open_marks_table';
+    name := 'disciplines_table';
+    index := tb;
+    component_type := ComponentTypes.TableType;
+  end;
+  inc(i);
+  inc(tb);
+  with tmp.buttons[bn] do
+  begin
+    title := 'Выйти';
+    x := (WindowWidth div 2 - title.Length - 2) div 2;
+    y := WindowHeight - 2;
+    text_color := LightRed;
+  end;
+  with tmp.lstcomponents[i] do
+  begin
+    name := 'exit_button';
     index := bn;
     component_type := ComponentTypes.ButtonType;
   end;
   inc(i);
   inc(bn);
+  with tmp.buttons[bn] do
+  begin
+    title := 'Добавить новую дисциплину';
+    x := (WindowWidth div 2 - title.Length - 2) div 2 + WindowWidth div 2;
+    y := WindowHeight - 2;
+    text_color := Green;
+  end;
+  with tmp.lstcomponents[i] do
+  begin
+    name := 'add_discipline';
+    index := bn;
+    component_type := ComponentTypes.ButtonType;
+  end;
+  inc(i);
+  inc(bn);
+  Result := tmp;
+end;
+
+function CreateDisciplineForm(): GuiComponents;
+var
+  i, bn, tf: integer;
+  tmp: GuiComponents;
+begin
+  setlength(tmp.buttons, 2);
+  setlength(tmp.text_fields, 1);
+  setlength(tmp.lstcomponents, 3);
+  tmp.window.title := 'Замените название на своё действие';
+  with tmp.text_fields[tf] do
+  begin
+    title := 'Название дисциплины';
+    x := 2;
+    y := 2;
+    width := WindowWidth - 2;
+    allow_alphabet := true;
+    allow_space := true;
+  end;
+  with tmp.lstcomponents[i] do
+  begin
+    name := 'discipline_name_field';
+    index := tf;
+    component_type := ComponentTypes.TextFieldType;
+  end;
+  inc(i);
+  inc(tf);
+  with tmp.buttons[bn] do
+  begin
+    title := 'Отмена';
+    x := (WindowWidth div 2 - title.Length - 2) div 2;
+    y := WindowHeight - 2;
+    text_color := LightRed;
+  end;
+  with tmp.lstcomponents[i] do
+  begin
+    name := 'exit_button';
+    index := bn;
+    component_type := ComponentTypes.ButtonType;
+  end;
+  inc(i);
+  inc(bn);
+  with tmp.buttons[bn] do
+  begin
+    title := 'Замените название на своё действие';
+    x := (WindowWidth div 2 - title.Length - 2) div 2 + WindowWidth div 2;
+    y := WindowHeight - 2;
+    text_color := Green;
+  end;
+  with tmp.lstcomponents[i] do
+  begin
+    name := 'action';
+    index := bn;
+    component_type := ComponentTypes.ButtonType;
+  end;
+  inc(i);
+  inc(bn);
+  Result := tmp;
+end;
+
+function CreateBaseStipendiaForm(): GuiComponents;
+var
+  i, bn, tf: integer;
+  tmp: GuiComponents;
+begin
+  setlength(tmp.buttons, 2);
+  setlength(tmp.text_fields, 1);
+  setlength(tmp.lstcomponents, 3);
+  tmp.window.title := 'Изменение базовой стипендии';
+  with tmp.text_fields[tf] do
+  begin
+    title := 'Базовая стипендия';
+    x := 2;
+    y := 2;
+    width := WindowWidth - 2;
+    allow_numbers := true;
+  end;
+  with tmp.lstcomponents[i] do
+  begin
+    name := 'base_stipendia_field';
+    index := tf;
+    component_type := ComponentTypes.TextFieldType;
+  end;
+  inc(i);
+  inc(tf);
+  with tmp.buttons[bn] do
+  begin
+    title := 'Отмена';
+    x := (WindowWidth div 2 - title.Length - 2) div 2;
+    y := WindowHeight - 2;
+    text_color := LightRed;
+  end;
+  with tmp.lstcomponents[i] do
+  begin
+    name := 'exit_button';
+    index := bn;
+    component_type := ComponentTypes.ButtonType;
+  end;
+  inc(i);
+  inc(bn);
+  with tmp.buttons[bn] do
+  begin
+    title := 'Изменить базовую стипендию';
+    x := (WindowWidth div 2 - title.Length - 2) div 2 + WindowWidth div 2;
+    y := WindowHeight - 2;
+    text_color := Green;
+  end;
+  with tmp.lstcomponents[i] do
+  begin
+    name := 'action';
+    index := bn;
+    component_type := ComponentTypes.ButtonType;
+  end;
+  inc(i);
+  inc(bn);
+  Result := tmp;
+end;
+
+function CreateMarksForm(account: account_rec; is_denied_marks: boolean): GuiComponents;
+var
+  i, bn, tb, free_space, n: integer;
+  tmp: GuiComponents;
+begin
+  n := 1;
+  if not is_denied_marks then n := n + 1;
+  if account.admin = 1 then n := n + 1;
+  SetLength(tmp.tables, 1);
+  setlength(tmp.buttons, n);
+  setlength(tmp.lstcomponents, 1 + n);
+  tmp.window.title := 'Замените какой тип оценок';
+  with tmp.tables[tb] do
+  begin
+    setlength(columns, 2);
+    free_space := WindowWidth - 3 - 4 - 7;
+    columns[0] := CreateColumn('Название дисциплины', free_space, AlignCenter);
+    columns[1] := CreateColumn('Оценка', 7, AlignCenter);
+    
+    if account.admin <> 1 then read_only := true;
+    height := WindowHeight - 3 - 3;
+    x := 3;
+    y := 3;
+    title := 'Оценки студента';
+  end;
+  with tmp.lstcomponents[i] do
+  begin
+    name := 'marks_table';
+    index := tb;
+    component_type := ComponentTypes.TableType;
+  end;
+  inc(i);
+  inc(tb);
+  with tmp.buttons[bn] do
+  begin
+    title := 'Выйти';
+    x := (WindowWidth div 3 - title.Length - 2) div 2;
+    y := WindowHeight - 2;
+    text_color := LightRed;
+  end;
+  with tmp.lstcomponents[i] do
+  begin
+    name := 'exit_button';
+    index := bn;
+    component_type := ComponentTypes.ButtonType;
+  end;
+  inc(i);
+  inc(bn);
+  if not is_denied_marks then begin
+    with tmp.buttons[bn] do
+    begin
+      title := 'Посмотреть задолжности';
+      x := (WindowWidth div 3 - title.Length - 2) div 2 + WindowWidth div 3;
+      y := WindowHeight - 2;
+      text_color := LightCyan;
+    end;
+    with tmp.lstcomponents[i] do
+    begin
+      name := 'open_denied_disciplines';
+      index := bn;
+      component_type := ComponentTypes.ButtonType;
+    end;
+    inc(i);
+    inc(bn);
+    if account.admin = 1 then begin
+      with tmp.buttons[bn] do
+      begin
+        title := 'Добавить новую оценку';
+        x := (WindowWidth div 3 - title.Length - 2) div 2 + 2 * (WindowWidth div 3);
+        y := WindowHeight - 2;
+        text_color := Green;
+      end;
+      with tmp.lstcomponents[i] do
+      begin
+        name := 'add_mark';
+        index := bn;
+        component_type := ComponentTypes.ButtonType;
+      end;
+    end;
+    inc(i);
+    inc(bn);
+  end;
+  Result := tmp;
+end;
+
+function CreateMarkForm(account: account_rec): GuiComponents;
+var
+  i, bn, sl, n: integer;
+  tmp: GuiComponents;
+begin
+  n := 1;
+  if account.admin = 1 then Inc(n);
+  setlength(tmp.buttons, n);
+  setlength(tmp.selects, 2);
+  setlength(tmp.lstcomponents, 2 + n);
+  tmp.window.title := 'Замените на своё действие с оценкой';
+  with tmp.selects[sl] do
+  begin
+    title := 'Название дисциплины';
+    x := 2;
+    y := 2;
+    width := WindowWidth - 2;
+    
+    if account.admin <> 1 then read_only := true;
+  end;
+  with tmp.lstcomponents[i] do
+  begin
+    name := 'discipline_field';
+    index := sl;
+    component_type := ComponentTypes.SelectType;
+  end;
+  inc(i);
+  inc(sl);
+  with tmp.selects[sl] do
+  begin
+    title := 'Выбор оценки';
+    x := 2;
+    y := 5;
+    width := WindowWidth - 2;
+    setlength(items, 5);
+    items[0] := '1';
+    items[1] := '2';
+    items[2] := '3';
+    items[3] := '4';
+    items[4] := '5';
+    if account.admin <> 1 then read_only := true;
+  end;
+  with tmp.lstcomponents[i] do
+  begin
+    name := 'mark_field';
+    index := sl;
+    component_type := ComponentTypes.SelectType;
+  end;
+  inc(i);
+  inc(sl);
+  with tmp.buttons[bn] do
+  begin
+    title := 'Отмена';
+    x := (WindowWidth div 2 - title.Length - 2) div 2;
+    y := WindowHeight - 2;
+    text_color := LightRed;
+  end;
+  with tmp.lstcomponents[i] do
+  begin
+    name := 'exit_button';
+    index := bn;
+    component_type := ComponentTypes.ButtonType;
+  end;
+  inc(i);
+  inc(bn);
+  if account.admin = 1 then begin
+    with tmp.buttons[bn] do
+    begin
+      title := 'Замените на своё действие с оценкой';
+      x := (WindowWidth div 3 - title.Length - 2) div 2 + 2 * (WindowWidth div 3);
+      y := WindowHeight - 2;
+      text_color := Green;
+    end;
+    with tmp.lstcomponents[i] do
+    begin
+      name := 'action';
+      index := bn;
+      component_type := ComponentTypes.ButtonType;
+    end;
+    inc(i);
+    inc(bn);
+  end;
   Result := tmp;
 end;
 

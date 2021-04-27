@@ -13,7 +13,7 @@ type
     title: string;
     items: array of string;
     selected_index: integer;
-    read_only : boolean;
+    read_only: boolean;
   end;
   Button = record
     x, y: integer;
@@ -33,7 +33,7 @@ type
     allow_space: boolean;
     hide: boolean;
     width: integer;
-    read_only : boolean;
+    read_only: boolean;
   end;
   TextComponent = record
     x, y: integer;
@@ -54,7 +54,7 @@ type
     get_row: function(i: integer): array of string;
     onclick_row: procedure(i: integer);
     ondelete_row: procedure(i: integer);
-    read_only : boolean;
+    read_only: boolean;
     current_page: integer;
     cursor: integer;
     title: string;
@@ -309,7 +309,7 @@ begin
         end;
         write(getborderline(10));
       end;
-    end;
+    end else active_rows := 0;
     {Закрытие таблицы}
     gotoxy(x, y + active_rows * 2 + 3);
     write(GetBorderLine(6));
