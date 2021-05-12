@@ -106,7 +106,7 @@ var
 begin
   with tmp do
   begin
-    window.title := 'Меню';
+    window.title := 'Главное меню';
     n := 2;
     if account.admin = 1 then n := n + 3;
     nd := n div 2;
@@ -208,8 +208,8 @@ var
 begin
   with tmp do
   begin
-    window.title := 'Стартовое меню';
-    SetLength(texts, 19);
+    window.title := 'Заставка';
+    SetLength(texts, 17);
     with texts[0] do
     begin
       title := 'Министерство науки и высшего образования Российской Федерации';
@@ -294,7 +294,7 @@ begin
       x := WindowWidth - title.Length - 1;
       y := WindowHeight - 5;
     end;
-    with texts[14] do
+    {with texts[14] do
     begin
       title := 'Доц.Каф. ВПМ';
       x := WindowWidth - title.Length - 1;
@@ -305,20 +305,20 @@ begin
       title := 'Макаров Н.П.';
       x := WindowWidth - title.Length - 1;
       y := WindowHeight - 3;
-    end;
-    with texts[16] do
+    end;}
+    with texts[14] do
     begin
       title := 'С.П.Каф. ВПМ';
       x := WindowWidth - title.Length - 1;
-      y := WindowHeight - 2;
+      y := WindowHeight - 4;
     end;
-    with texts[17] do
+    with texts[15] do
     begin
       title := 'Москвитина О.А.';
       x := WindowWidth - title.Length - 1;
-      y := WindowHeight - 1;
+      y := WindowHeight - 3;
     end;
-    with texts[18] do
+    with texts[16] do
     begin
       title := 'Рязань 2021';
       x := (WindowWidth - title.Length) div 2;

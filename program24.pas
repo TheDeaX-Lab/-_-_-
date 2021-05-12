@@ -110,6 +110,14 @@ begin
 end;
 
 procedure OnOpenAccountFormAdd;
+{procedure OnCancelAccountFormAdd;
+var
+  clr_acc: account_rec;
+begin
+  current_add_account := clr_acc;
+  account_form.stopped := true;
+  FullRender(accounts_form);
+end;}
 begin
   account_form := CreateAccountForm();
   account_form.window.title := 'Добавление аккаунта';
@@ -652,7 +660,7 @@ begin
   current_student := students[current_edit_student_index];
   student_form := CreateStudentForm(current_account);
   if current_account.admin = 1 then
-    student_form.window.title := 'Изменение аккаунта'
+    student_form.window.title := 'Изменение студента'
   else
     student_form.window.title := 'Просмотр студента';
   student_form.buttons[GetIndexByNameFromAssociationList(student_form.lstcomponents, 'exit_button')].onclick := OnExitStudentFormEdit;

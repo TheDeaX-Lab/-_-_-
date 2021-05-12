@@ -120,20 +120,20 @@ begin
 end;
 
 // Главная функция отвечающая за расчет коэффициента от базовой стипендии для различных типов студентов
-function FactorStipendia(student: student_rec): real;
+function FactorStipendia(marks: array of mark_rec): real;
 var
   mark_counts: array of integer;
   factor: real;
   count_disciplines, count_marks: integer;
 begin
-  mark_counts := MarkCounter(student.marks);
+  mark_counts := MarkCounter(marks);
   try
     count_disciplines := disciplines.Length;
   except
     count_disciplines := 0;
   end;
   try
-    count_marks := student.marks.Length;
+    count_marks := marks.Length;
   except
     count_marks := 0;
   end;
@@ -186,7 +186,7 @@ end;
 // Присваивает новую стипендию
 procedure CalculateStipendiaForStudent(var student: student_rec);
 begin
-  student.stipendia := trunc(base_stipendia * FactorStipendia(student));
+  student.stipendia := trunc(base_stipendia * FactorStipendia(student.marks));
 end;
 
 procedure ReadBaseStipendiaFromFile(filename: string);
