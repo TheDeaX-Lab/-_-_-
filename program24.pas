@@ -572,7 +572,10 @@ begin
   SetLength(not_mark_disciplines, 0);
   current_mark_edit_index := i;
   mark_form := CreateMarkForm(current_account);
-  mark_form.window.title := 'Изменение оценки';
+  if current_account.admin = 1 then
+    mark_form.window.title := 'Изменение оценки'
+  else
+    mark_form.window.title := 'Просмотр оценки';
   mark_form.selects[GetIndexByNameFromAssociationList(mark_form.lstcomponents, 'mark_field')].selected_index := current_student.marks[current_mark_edit_index].mark - 1;
   for k := 0 to high(disciplines) do
   begin
